@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Deals Extension</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap">
+  <style>
+    /* Brand colors - warm gold accent */
+    :root {
+      --brand-50: #fefce8;
+      --brand-100: #fef9c3;
+      --brand-200: #fef08a;
+      --brand-300: #fde047;
+      --brand-400: #facc15;
+      --brand-500: #eab308;
+      --brand-600: #ca8a04;
+      --brand-700: #a16207;
+      --brand-800: #854d0e;
+      --brand-900: #713f12;
+      --brand-950: #422006;
+
+      /* Surface colors - dark theme */
+      --surface-50: #fafafa;
+      --surface-100: #f4f4f5;
+      --surface-200: #e4e4e7;
+      --surface-300: #d4d4d8;
+      --surface-400: #a1a1aa;
+      --surface-500: #71717a;
+      --surface-600: #52525b;
+      --surface-700: #3f3f46;
+      --surface-800: #27272a;
+      --surface-900: #18181b;
+      --surface-950: #09090b;
+    }
+
+    @keyframes fade-in {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes fade-in-up {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slide-in-right {
+      0% { opacity: 0; transform: translateX(-20px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes pulse-soft {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    body {
+      background-color: var(--surface-950);
+      color: var(--surface-100);
+      font-family: 'Outfit', system-ui, sans-serif;
+      width: 320px;
+      min-height: 200px;
+      margin: 0;
+      padding: 0;
+      animation: fade-in 0.5s ease-out forwards;
+    }
+
+    .container {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .header {
+      text-align: center;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(to right, var(--brand-400), var(--brand-200));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--surface-400);
+      font-size: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--surface-300);
+      margin-bottom: 8px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 16px;
+      background-color: var(--surface-800);
+      border: 1px solid var(--surface-700);
+      border-radius: 12px;
+      color: var(--surface-100);
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    .input-field::placeholder {
+      color: var(--surface-500);
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--brand-400);
+      box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.2);
+    }
+
+    .help-text {
+      color: var(--surface-500);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 24px;
+      background: linear-gradient(to right, var(--brand-500), var(--brand-400));
+      color: var(--surface-950);
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(234, 179, 8, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(to right, var(--brand-400), var(--brand-300));
+      transform: scale(1.02);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .status-message {
+      margin-top: 12px;
+      padding: 8px 12px;
+      background-color: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      animation: fade-in-up 0.6s ease-out forwards;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .pulse-soft {
+      animation: pulse-soft 2s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h3 class="title">Amazon Affiliate Tag</h3>
+      <p class="subtitle">Configure your affiliate tracking</p>
+    </div>
+
+    <div class="form-group">
+      <div>
+        <label for="tagInput" class="label">Your affiliate tag</label>
+        <input
+          type="text"
+          id="tagInput"
+          placeholder="e.g., mytag-20"
+          class="input-field"
+        >
+        <p class="help-text">Enter your Amazon affiliate tag for tracking</p>
+      </div>
+
+      <button id="save" class="btn-primary">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        Save Tag
+      </button>
+    </div>
+
+    <div id="status" class="hidden status-message"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
