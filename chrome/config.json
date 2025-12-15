@@ -1,0 +1,28 @@
+{
+    "options": [
+        {
+            "id": "de",
+            "label": "Deutschland",
+            "base_url": "https://www.amazon.de/",
+            "domain": "amazon.de"
+        },
+        {
+            "id": "es",
+            "label": "Spanien",
+            "base_url": "https://www.amazon.es/",
+            "domain": "amazon.es"
+        },
+        {
+            "id": "fr",
+            "label": "Frankreich",
+            "base_url": "https://www.amazon.fr/",
+            "domain": "amazon.fr"
+        },
+        {
+            "id": "it",
+            "label": "Italien",
+            "base_url": "https://www.amazon.it/",
+            "domain": "amazon.it"
+        }
+    ]
+}
