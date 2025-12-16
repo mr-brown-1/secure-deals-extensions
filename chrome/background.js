@@ -62,10 +62,14 @@ async function updateDynamicRules() {
       continue;
     }
 
-    // Create a regex that matches the specific Amazon domain
-    // Escape dots in domain for regex
+    // Create a regex that matches Amazon product URLs and captures the product ID
+    // This regex will match various Amazon URL formats and extract the product ID (ASIN)
+    // Examples:
+    // - /dp/B0CTHXMYL8/...
+    // - /gp/product/B0CTHXMYL8/...
+    // - /...../dp/B0CTHXMYL8/...
     const domainPattern = option.domain.replace(/\./g, '\\.');
-    const regexFilter = `^https?://([^/]+\\.)?${domainPattern}/`;
+    const regexFilter = `^(https?)://([^/]+\\.)?${domainPattern}/.*?/(dp|gp/product)/([A-Z0-9]{10})(/.*)?$`;
 
     newRules.push({
       id: ruleId++,
@@ -73,12 +77,7 @@ async function updateDynamicRules() {
       action: {
         type: 'redirect',
         redirect: {
-          transform: {
-            queryTransform: {
-              removeParams: ['tag'],
-              addOrReplaceParams: [{ key: 'tag', value: tag }]
-            }
-          }
+          regexSubstitution: `\\1://www.${option.domain}/dp/\\4/ref=nosim?tag=${tag}`
         }
       },
       condition: {
