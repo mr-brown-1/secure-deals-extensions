@@ -69,7 +69,7 @@ async function updateDynamicRules() {
     // - /gp/product/B0CTHXMYL8/...
     // - /...../dp/B0CTHXMYL8/...
     const domainPattern = option.domain.replace(/\./g, '\\.');
-    const regexFilter = `^(https?)://([^/]+\\.)?${domainPattern}/.*?/(dp|gp/product)/([A-Z0-9]{10})(/.*)?$`;
+    const regexFilter = `^(https?)://([^/]+\\.)?${domainPattern}/.*?/(dp|gp/product)/([A-Z0-9]{10})(.*)?$`;
 
     newRules.push({
       id: ruleId++,
