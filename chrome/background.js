@@ -69,7 +69,7 @@ async function updateDynamicRules() {
     // - /gp/product/B0CTHXMYL8/...
     // - /...../dp/B0CTHXMYL8/...
     const domainPattern = option.domain.replace(/\./g, '\\.');
-    const regexFilter = `^(https?)://([^/]+\\.)?${domainPattern}/.*?/(dp|gp/product)/([A-Z0-9]{10})(.*)?$`;
+    const regexFilter = `^(https?)://([^/]+\\.)?${domainPattern}/(.*/)?(dp|gp/product)/([A-Z0-9]{10}).*$`;
 
     newRules.push({
       id: ruleId++,
@@ -77,7 +77,7 @@ async function updateDynamicRules() {
       action: {
         type: 'redirect',
         redirect: {
-          regexSubstitution: `\\1://www.${option.domain}/dp/\\4/ref=nosim?tag=${tag}`
+          regexSubstitution: `\\1://www.${option.domain}/dp/\\5/ref=nosim?tag=${tag}`
         }
       },
       condition: {
