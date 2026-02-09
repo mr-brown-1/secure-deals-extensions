@@ -247,6 +247,62 @@
       letter-spacing: 0.5px;
       margin-bottom: 4px;
     }
+
+    .divider {
+      height: 1px;
+      background: var(--surface-800);
+    }
+
+    .product-preview {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background-color: var(--surface-800);
+      border: 1px solid var(--surface-700);
+      border-radius: 10px;
+    }
+
+    .product-preview img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .product-preview .product-name {
+      font-size: 13px;
+      color: var(--surface-200);
+      flex: 1;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .no-product {
+      color: var(--surface-500);
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-primary:disabled:hover {
+      transform: none;
+    }
+
+    .status-error {
+      background-color: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
   </style>
 </head>
 <body>
@@ -271,6 +327,22 @@
     </div>
 
     <div id="status" class="hidden status-message"></div>
+
+    <div class="divider"></div>
+
+    <div class="form-group">
+      <p class="section-label">Product</p>
+      <div id="productPreview" class="product-preview">
+        <p class="no-product">No product detected</p>
+      </div>
+      <button id="sendProduct" class="btn-primary" disabled>
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path>
+        </svg>
+        Send to API
+      </button>
+      <div id="sendStatus" class="hidden status-message"></div>
+    </div>
   </div>
 
   <script src="popup.js"></script>

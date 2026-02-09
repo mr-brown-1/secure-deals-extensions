@@ -5,33 +5,49 @@ console.log('background.js loaded');
 const API_URL = 'https://qpiistkm37k2oowb3q77vd3koa0inrrl.lambda-url.eu-north-1.on.aws/';
 const API_KEY = 'INSERT_YOUR_API_KEY_HERE';
 
-let lastSentAsin = null;
-
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.type !== 'PRODUCT_DATA') return false;
-  const { asin } = message.data;
-  if (asin === lastSentAsin) { sendResponse({ skipped: true }); return false; }
-  lastSentAsin = asin;
+  if (message.type === 'PRODUCT_DATA') {
+    chrome.storage.session.set({ product: message.data });
+    console.log('Product stored:', message.data.asin);
+    sendResponse({ stored: true });
+    return false;
+  }
 
-  const body = JSON.stringify(message.data);
-  console.log('Product API request:', API_URL, body);
+  if (message.type === 'GET_PRODUCT') {
+    chrome.storage.session.get('product', (d) => sendResponse({ product: d.product || null }));
+    return true;
+  }
 
-  fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
-    body,
-  })
-    .then(async (r) => {
-      const text = await r.text();
-      console.log('Product API response:', r.status, r.statusText, text);
-      sendResponse({ status: r.status, body: text });
-    })
-    .catch((e) => {
-      console.error('Product API error:', e.message, e.stack);
-      sendResponse({ error: e.message });
+  if (message.type === 'SEND_PRODUCT') {
+    chrome.storage.session.get('product', (d) => {
+      const product = d.product;
+      if (!product) {
+        sendResponse({ error: 'No product data available' });
+        return;
+      }
+      const body = JSON.stringify(product);
+      console.log('Product API request:', API_URL, body);
+
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
+        body,
+      })
+        .then(async (r) => {
+          const text = await r.text();
+          console.log('Product API response:', r.status, r.statusText, text);
+          sendResponse({ status: r.status, body: text });
+        })
+        .catch((e) => {
+          console.error('Product API error:', e.message, e.stack);
+          sendResponse({ error: e.message });
+        });
     });
 
-  return true; // keep message channel open for async response
+    return true; // keep channel open for async response
+  }
+
+  return false;
 });
 // --- End product data API ---
 
