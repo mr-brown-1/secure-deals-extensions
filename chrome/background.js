@@ -3,7 +3,7 @@ console.log('background.js loaded');
 
 // --- Product data API ---
 const API_URL = 'https://qpiistkm37k2oowb3q77vd3koa0inrrl.lambda-url.eu-north-1.on.aws/';
-const API_KEY = 'INSERT_YOUR_API_KEY_HERE';
+const API_KEY = 'InsertYourAPIKeyHere';
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'PRODUCT_DATA') {

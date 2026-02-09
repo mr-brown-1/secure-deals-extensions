@@ -8,9 +8,12 @@ if (asinMatch) {
     document.querySelector('#landingImage')?.src ||
     document.querySelector('#imgTagWrapperId img')?.src ||
     '';
+  const description = document.querySelector('#feature-bullets li span')?.textContent?.trim() || '';
+  const brandRow = [...(document.querySelectorAll('#poExpander tr') || [])].find(tr => tr.textContent.includes('Brand Name'));
+  const brand = brandRow?.querySelector('td:last-child span')?.textContent?.trim() || '';
 
   chrome.runtime.sendMessage({
     type: 'PRODUCT_DATA',
-    data: { asin, productName: name, thumbnailUrl: thumbnail, productUrl: window.location.href },
+    data: { asin, productName: name, thumbnailUrl: thumbnail, productUrl: window.location.href, description, brand },
   });
 }
