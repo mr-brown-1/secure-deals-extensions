@@ -41,14 +41,10 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.amazon.de/dp/*",
-        "*://*.amazon.de/gp/product/*",
-        "*://*.amazon.es/dp/*",
-        "*://*.amazon.es/gp/product/*",
-        "*://*.amazon.fr/dp/*",
-        "*://*.amazon.fr/gp/product/*",
-        "*://*.amazon.it/dp/*",
-        "*://*.amazon.it/gp/product/*"
+        "*://*.amazon.de/*",
+        "*://*.amazon.es/*",
+        "*://*.amazon.fr/*",
+        "*://*.amazon.it/*"
       ],
       "js": ["content.js"],
       "run_at": "document_idle"
