@@ -1,6 +1,40 @@
 // Listen for storage changes and update rules dynamically
 console.log('background.js loaded');
 
+// --- Product data API ---
+const API_URL = 'https://qpiistkm37k2oowb3q77vd3koa0inrrl.lambda-url.eu-north-1.on.aws/';
+const API_KEY = 'INSERT_YOUR_API_KEY_HERE';
+
+let lastSentAsin = null;
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type !== 'PRODUCT_DATA') return false;
+  const { asin } = message.data;
+  if (asin === lastSentAsin) { sendResponse({ skipped: true }); return false; }
+  lastSentAsin = asin;
+
+  const body = JSON.stringify(message.data);
+  console.log('Product API request:', API_URL, body);
+
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
+    body,
+  })
+    .then(async (r) => {
+      const text = await r.text();
+      console.log('Product API response:', r.status, r.statusText, text);
+      sendResponse({ status: r.status, body: text });
+    })
+    .catch((e) => {
+      console.error('Product API error:', e.message, e.stack);
+      sendResponse({ error: e.message });
+    });
+
+  return true; // keep message channel open for async response
+});
+// --- End product data API ---
+
 let config = null;
 
 // Load config on startup

@@ -35,7 +35,24 @@
     "*://*.amazon.se/*",
     "*://*.amazon.pl/*",
     "*://*.amazon.sg/*",
-    "*://*.amazon.in/*"
+    "*://*.amazon.in/*",
+    "https://qpiistkm37k2oowb3q77vd3koa0inrrl.lambda-url.eu-north-1.on.aws/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.amazon.de/dp/*",
+        "*://*.amazon.de/gp/product/*",
+        "*://*.amazon.es/dp/*",
+        "*://*.amazon.es/gp/product/*",
+        "*://*.amazon.fr/dp/*",
+        "*://*.amazon.fr/gp/product/*",
+        "*://*.amazon.it/dp/*",
+        "*://*.amazon.it/gp/product/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
   ],
   "optional_host_permissions": [
     "*://*.amzn.to/*",
