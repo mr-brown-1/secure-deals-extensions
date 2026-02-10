@@ -14,8 +14,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const response = await fetch(chrome.runtime.getURL('config.json'));
   config = await response.json();
 
-  // Load saved tags
-  const { countryTags = {} } = await chrome.storage.sync.get('countryTags');
+  // Load saved tags + webhook URL
+  const { countryTags = {}, discordWebhookUrl = '' } = await chrome.storage.sync.get(['countryTags', 'discordWebhookUrl']);
+  document.getElementById('webhookUrl').value = discordWebhookUrl;
 
   // Load product preview
   chrome.runtime.sendMessage({ type: 'GET_PRODUCT' }, (res) => {
@@ -118,6 +119,11 @@ function updateProfitPreview() {
 }
 document.getElementById('buyPrice').addEventListener('input', updateProfitPreview);
 document.getElementById('sellPrice').addEventListener('input', updateProfitPreview);
+
+// Save webhook URL on change
+document.getElementById('webhookUrl').addEventListener('change', async () => {
+  await chrome.storage.sync.set({ discordWebhookUrl: document.getElementById('webhookUrl').value.trim() });
+});
 
 // Send to Discord
 document.getElementById('sendDiscord').addEventListener('click', () => {

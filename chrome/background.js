@@ -59,8 +59,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       if (isNaN(buyPrice) || buyPrice <= 0) { sendResponse({ error: 'Invalid buy price' }); return; }
 
       try {
-        const cfg = await fetch(chrome.runtime.getURL('config.json')).then(r => r.json());
-        const webhookUrl = cfg.discordWebhookUrl;
+        const { discordWebhookUrl: webhookUrl } = await chrome.storage.sync.get('discordWebhookUrl');
         if (!webhookUrl) { sendResponse({ error: 'No Discord webhook URL configured' }); return; }
 
         const domainMap = { 'amazon.de': { flag: '\u{1F1E9}\u{1F1EA}', id: 'de' }, 'amazon.fr': { flag: '\u{1F1EB}\u{1F1F7}', id: 'fr' }, 'amazon.it': { flag: '\u{1F1EE}\u{1F1F9}', id: 'it' }, 'amazon.es': { flag: '\u{1F1EA}\u{1F1F8}', id: 'es' } };
