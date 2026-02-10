@@ -3,7 +3,7 @@ console.log('background.js loaded');
 
 // --- Product data API ---
 const API_URL = 'https://qpiistkm37k2oowb3q77vd3koa0inrrl.lambda-url.eu-north-1.on.aws/';
-const API_KEY = 'Insertapikey';
+const API_KEY = 'samsams123!';
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'PRODUCT_DATA') {
@@ -58,14 +58,19 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       const buyPrice = parseFloat(message.buyPrice);
       if (isNaN(buyPrice) || buyPrice <= 0) { sendResponse({ error: 'Invalid buy price' }); return; }
 
+      const sellCountry = message.sellCountry;
+      if (!sellCountry) { sendResponse({ error: 'No sell country selected' }); return; }
+
       try {
         const { discordWebhookUrl: webhookUrl } = await chrome.storage.sync.get('discordWebhookUrl');
         if (!webhookUrl) { sendResponse({ error: 'No Discord webhook URL configured' }); return; }
 
-        const domainMap = { 'amazon.de': { flag: '\u{1F1E9}\u{1F1EA}', id: 'de' }, 'amazon.fr': { flag: '\u{1F1EB}\u{1F1F7}', id: 'fr' }, 'amazon.it': { flag: '\u{1F1EE}\u{1F1F9}', id: 'it' }, 'amazon.es': { flag: '\u{1F1EA}\u{1F1F8}', id: 'es' } };
+        const countryFlagMap = { de: '\u{1F1E9}\u{1F1EA}', fr: '\u{1F1EB}\u{1F1F7}', it: '\u{1F1EE}\u{1F1F9}', es: '\u{1F1EA}\u{1F1F8}' };
+        const domainMap = { 'amazon.de': 'de', 'amazon.fr': 'fr', 'amazon.it': 'it', 'amazon.es': 'es' };
         const matched = Object.entries(domainMap).find(([d]) => product.productUrl.includes(d));
-        const flag = matched ? matched[1].flag : '\u{1F30D}';
-        const countryId = matched ? matched[1].id : null;
+        const buyFlag = matched ? countryFlagMap[matched[1]] : '\u{1F30D}';
+        const sellFlag = countryFlagMap[sellCountry] || '\u{1F30D}';
+        const countryId = matched ? matched[1] : null;
 
         // Build tagged product URL
         const { countryTags = {} } = await chrome.storage.sync.get('countryTags');
@@ -85,8 +90,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           thumbnail: product.thumbnailUrl ? { url: product.thumbnailUrl } : undefined,
           fields: [
             { name: 'ASIN', value: product.asin, inline: true },
-            { name: `${flag} Buy`, value: `[${buyPrice.toFixed(2)}\u20AC](${taggedUrl})`, inline: true },
-            { name: `${flag} Sell`, value: `${sellPrice.toFixed(2)}\u20AC`, inline: true },
+            { name: `${buyFlag} Buy`, value: `[${buyPrice.toFixed(2)}\u20AC](${taggedUrl})`, inline: true },
+            { name: `${sellFlag} Sell`, value: `${sellPrice.toFixed(2)}\u20AC`, inline: true },
             { name: '\u{1F4B0} Margin', value: `${margin.toFixed(1)}% | ${profit >= 0 ? '+' : ''}${profit.toFixed(2)}\u20AC/unit`, inline: true },
           ],
           footer: { text: `Profit: ${profit >= 0 ? '+' : ''}${profit.toFixed(2)}\u20AC (${margin.toFixed(1)}%)` },

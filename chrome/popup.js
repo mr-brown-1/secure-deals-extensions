@@ -130,6 +130,16 @@ document.getElementById('sendDiscord').addEventListener('click', () => {
   const sellPrice = parseFloat(document.getElementById('sellPrice').value);
   if (isNaN(sellPrice) || sellPrice <= 0) return;
 
+  const sellCountry = document.getElementById('sellCountry').value;
+  if (!sellCountry) {
+    const status = document.getElementById('discordStatus');
+    status.textContent = 'Select a sell country first';
+    status.classList.remove('hidden');
+    status.classList.add('status-error');
+    setTimeout(() => status.classList.add('hidden'), 3000);
+    return;
+  }
+
   const btn = document.getElementById('sendDiscord');
   const status = document.getElementById('discordStatus');
   btn.disabled = true;
@@ -138,7 +148,7 @@ document.getElementById('sendDiscord').addEventListener('click', () => {
   const buyPrice = parseFloat(document.getElementById('buyPrice').value);
   if (isNaN(buyPrice) || buyPrice <= 0) return;
 
-  chrome.runtime.sendMessage({ type: 'SEND_DISCORD', sellPrice, buyPrice }, (res) => {
+  chrome.runtime.sendMessage({ type: 'SEND_DISCORD', sellPrice, buyPrice, sellCountry }, (res) => {
     status.classList.remove('hidden', 'status-error');
     if (res?.error) {
       status.textContent = res.error;
