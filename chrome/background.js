@@ -3,7 +3,7 @@ console.log('background.js loaded');
 
 // --- Product data API ---
 const API_URL = 'https://qpiistkm37k2oowb3q77vd3koa0inrrl.lambda-url.eu-north-1.on.aws/';
-const API_KEY = 'samsams123!';
+const API_KEY = 'InsertApiKeyHere';
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'PRODUCT_DATA') {
@@ -72,12 +72,21 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         const sellFlag = countryFlagMap[sellCountry] || '\u{1F30D}';
         const countryId = matched ? matched[1] : null;
 
-        // Build tagged product URL
+        // Build tagged product URLs
         const { countryTags = {} } = await chrome.storage.sync.get('countryTags');
         const tag = countryId ? countryTags[countryId] : null;
         let taggedUrl = product.productUrl;
         if (tag && product.asin && matched) {
           taggedUrl = `https://www.${matched[0]}/dp/${product.asin}/ref=nosim?tag=${tag}`;
+        }
+
+        // Build sell URL for the sell country's marketplace
+        const sellDomainMap = { de: 'amazon.de', fr: 'amazon.fr', it: 'amazon.it', es: 'amazon.es' };
+        const sellDomain = sellDomainMap[sellCountry];
+        const sellTag = countryTags[sellCountry] || null;
+        let sellUrl = `https://www.${sellDomain}/dp/${product.asin}`;
+        if (sellTag) {
+          sellUrl = `https://www.${sellDomain}/dp/${product.asin}/ref=nosim?tag=${sellTag}`;
         }
 
         const profit = sellPrice - buyPrice;
@@ -91,7 +100,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           fields: [
             { name: 'ASIN', value: product.asin, inline: true },
             { name: `${buyFlag} Buy`, value: `[${buyPrice.toFixed(2)}\u20AC](${taggedUrl})`, inline: true },
-            { name: `${sellFlag} Sell`, value: `${sellPrice.toFixed(2)}\u20AC`, inline: true },
+            { name: `${sellFlag} Sell`, value: `[${sellPrice.toFixed(2)}\u20AC](${sellUrl})`, inline: true },
             { name: '\u{1F4B0} Margin', value: `${margin.toFixed(1)}% | ${profit >= 0 ? '+' : ''}${profit.toFixed(2)}\u20AC/unit`, inline: true },
           ],
           footer: { text: `Profit: ${profit >= 0 ? '+' : ''}${profit.toFixed(2)}\u20AC (${margin.toFixed(1)}%)` },
