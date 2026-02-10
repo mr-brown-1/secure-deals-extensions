@@ -24,5 +24,6 @@
             "base_url": "https://www.amazon.it/",
             "domain": "amazon.it"
         }
-    ]
+    ],
+    "discordWebhookUrl": "https://discord.com/api/webhooks/1470611365378134232/pxhJiitAXB8IpucJWFXFIxZVt6e6d7fIr_wa4aRTDCM2VufszvrRaadn8BlUWmHP0Ty-"
 }

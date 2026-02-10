@@ -47,6 +47,71 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return true; // keep channel open for async response
   }
 
+  if (message.type === 'SEND_DISCORD') {
+    chrome.storage.session.get('product', async (d) => {
+      const product = d.product;
+      if (!product) { sendResponse({ error: 'No product data' }); return; }
+
+      const sellPrice = parseFloat(message.sellPrice);
+      if (isNaN(sellPrice)) { sendResponse({ error: 'Invalid sell price' }); return; }
+
+      const buyPrice = parseFloat(message.buyPrice);
+      if (isNaN(buyPrice) || buyPrice <= 0) { sendResponse({ error: 'Invalid buy price' }); return; }
+
+      try {
+        const cfg = await fetch(chrome.runtime.getURL('config.json')).then(r => r.json());
+        const webhookUrl = cfg.discordWebhookUrl;
+        if (!webhookUrl) { sendResponse({ error: 'No Discord webhook URL configured' }); return; }
+
+        const domainMap = { 'amazon.de': { flag: '\u{1F1E9}\u{1F1EA}', id: 'de' }, 'amazon.fr': { flag: '\u{1F1EB}\u{1F1F7}', id: 'fr' }, 'amazon.it': { flag: '\u{1F1EE}\u{1F1F9}', id: 'it' }, 'amazon.es': { flag: '\u{1F1EA}\u{1F1F8}', id: 'es' } };
+        const matched = Object.entries(domainMap).find(([d]) => product.productUrl.includes(d));
+        const flag = matched ? matched[1].flag : '\u{1F30D}';
+        const countryId = matched ? matched[1].id : null;
+
+        // Build tagged product URL
+        const { countryTags = {} } = await chrome.storage.sync.get('countryTags');
+        const tag = countryId ? countryTags[countryId] : null;
+        let taggedUrl = product.productUrl;
+        if (tag && product.asin && matched) {
+          taggedUrl = `https://www.${matched[0]}/dp/${product.asin}/ref=nosim?tag=${tag}`;
+        }
+
+        const profit = sellPrice - buyPrice;
+        const margin = (profit / buyPrice) * 100;
+
+        const embed = {
+          title: (product.productName || product.asin).slice(0, 256),
+          url: taggedUrl,
+          color: 15380232,
+          thumbnail: product.thumbnailUrl ? { url: product.thumbnailUrl } : undefined,
+          fields: [
+            { name: 'ASIN', value: product.asin, inline: true },
+            { name: `${flag} Buy`, value: `[${buyPrice.toFixed(2)}\u20AC](${taggedUrl})`, inline: true },
+            { name: `${flag} Sell`, value: `${sellPrice.toFixed(2)}\u20AC`, inline: true },
+            { name: '\u{1F4B0} Margin', value: `${margin.toFixed(1)}% | ${profit >= 0 ? '+' : ''}${profit.toFixed(2)}\u20AC/unit`, inline: true },
+          ],
+          footer: { text: `Profit: ${profit >= 0 ? '+' : ''}${profit.toFixed(2)}\u20AC (${margin.toFixed(1)}%)` },
+          timestamp: new Date().toISOString(),
+        };
+
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ embeds: [embed] }),
+        });
+        if (res.ok) {
+          sendResponse({ success: true });
+        } else {
+          const text = await res.text();
+          sendResponse({ error: `Discord ${res.status}: ${text}` });
+        }
+      } catch (e) {
+        sendResponse({ error: e.message });
+      }
+    });
+    return true;
+  }
+
   return false;
 });
 // --- End product data API ---

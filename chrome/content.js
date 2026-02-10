@@ -2,6 +2,54 @@
 
 const LOG = (...args) => console.log('[SD content]', ...args);
 
+function scrapeBuyPrice() {
+  const selectors = [
+    '#corePrice_feature_div .a-offscreen',
+    '#corePriceDisplay_desktop_feature_div .a-offscreen',
+    '#priceblock_ourprice',
+    '#price_inside_buybox',
+    '.a-price .a-offscreen',
+  ];
+  for (const sel of selectors) {
+    const el = document.querySelector(sel);
+    if (el) {
+      const raw = el.textContent.trim().replace(/[^\d.,]/g, '');
+      const parsed = parseEuroPrice(raw);
+      if (parsed !== null) { LOG('buyPrice from', sel, '=', parsed); return parsed; }
+    }
+  }
+  // Fallback: whole + fraction
+  const whole = document.querySelector('.a-price-whole')?.textContent?.trim().replace(/[^\d]/g, '');
+  const fraction = document.querySelector('.a-price-fraction')?.textContent?.trim().replace(/[^\d]/g, '');
+  if (whole) {
+    const parsed = parseFloat(`${whole}.${fraction || '0'}`);
+    if (!isNaN(parsed)) { LOG('buyPrice from whole+fraction =', parsed); return parsed; }
+  }
+  LOG('buyPrice not found');
+  return null;
+}
+
+function parseEuroPrice(str) {
+  if (!str) return null;
+  // European: 1.234,56 → 1234.56  or  19,99 → 19.99
+  if (str.includes(',')) {
+    str = str.replace(/\./g, '').replace(',', '.');
+  }
+  const n = parseFloat(str);
+  return isNaN(n) ? null : n;
+}
+
+function scrapeSellPrice() {
+  const el = document.querySelector('.basisPrice .a-price .a-offscreen');
+  if (el) {
+    const raw = el.textContent.trim().replace(/[^\d.,]/g, '');
+    const parsed = parseEuroPrice(raw);
+    if (parsed !== null) { LOG('sellPrice from basisPrice =', parsed); return parsed; }
+  }
+  LOG('sellPrice not found');
+  return null;
+}
+
 function scrapeAndSend() {
   LOG('scrapeAndSend called, pathname:', window.location.pathname);
   const asinMatch = window.location.pathname.match(/(?:dp|gp\/product)\/([A-Z0-9]{10})(?=[/?#]|$)/i);
@@ -19,8 +67,10 @@ function scrapeAndSend() {
   const description = document.querySelector('#feature-bullets li span')?.textContent?.trim() || '';
   const brandRow = [...(document.querySelectorAll('#poExpander tr') || [])].find(tr => tr.textContent.includes('Brand Name'));
   const brand = brandRow?.querySelector('td:last-child span')?.textContent?.trim() || '';
+  const buyPrice = scrapeBuyPrice();
+  const sellPrice = scrapeSellPrice();
 
-  const data = { asin, productName: name, thumbnailUrl: thumbnail, productUrl: window.location.href, description, brand };
+  const data = { asin, productName: name, thumbnailUrl: thumbnail, productUrl: window.location.href, description, brand, buyPrice, sellPrice };
   LOG('sending product data:', JSON.stringify(data, null, 2));
 
   chrome.runtime.sendMessage({ type: 'PRODUCT_DATA', data });
